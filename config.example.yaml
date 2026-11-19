@@ -175,7 +175,13 @@ access:
 
 # Routing strategy for selecting credentials when multiple match.
 routing:
-  strategy: "round-robin" # round-robin (default), weighted-round-robin, fill-first
+  strategy: "round-robin" # round-robin (default), weighted-round-robin, fill-first, soonest-reset
+  # soonest-reset prefers the eligible credential within the same provider whose relevant
+  # quota window resets soonest, using passive upstream response headers/events (Claude 7d
+  # unified window, falling back to 5h/unified; Codex primary/secondary longest window).
+  # Existing session-affinity bindings are preserved while eligible; ties break by higher
+  # remaining quota and then round-robin. Providers or credentials with missing/expired
+  # reset signals fall back deterministically to round-robin without extra network calls.
   # weighted-round-robin uses each credential's integer weight (default 1, maximum 1,000,000).
   # Non-positive weights exclude the credential while this strategy is active.
   # Sticky requests (including inherited and LCP bindings) also consume weighted credits
